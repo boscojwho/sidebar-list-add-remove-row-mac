@@ -37,37 +37,61 @@ class Model: ObservableObject
 struct ContentView: View {
     
     @StateObject private var model: Model = .init()
+    @State private var expanded: Bool = true
     
     var body: some View {
         NavigationSplitView {
-            List {
-                Section {
-                    if model.items.isEmpty {
-                        ProgressView()
-                    } else {
-                        ForEach(model.items, id: \.self) { item in
-                            NavigationLink {
-                                Text("Item: \(item.name)")
-                                    .id("detail-\(item.name)")
-                            } label: {
-                                Text("Item: \(item.name)")
-                            }
-                            .contextMenu {
-                                Button {
-                                    Task(priority: .userInitiated) {
-                                        if let idx = model.items.firstIndex(of: item) {
-                                            withAnimation {
-                                                model.items.remove(at: idx)
+            ScrollView {
+                Form {
+                    DisclosureGroup(
+                        isExpanded: $expanded,
+                        content: {
+                            Group {
+                                if model.items.isEmpty {
+                                    ProgressView()
+                                } else {
+                                    ForEach(Array(model.items.enumerated()), id: \.element) { index, item in
+                                        Group {
+                                            NavigationLink {
+                                                Text("Item: \(item.name)")
+                                                    .id("detail-\(item.name)")
+                                            } label: {
+                                                Text("Item: \(item.name)")
                                             }
+                                            .contextMenu {
+                                                Button {
+                                                    Task(priority: .userInitiated) {
+                                                        if let idx = model.items.firstIndex(of: item) {
+                                                            withAnimation {
+                                                                model.items.remove(at: idx)
+                                                            }
+                                                        }
+                                                    }
+                                                } label: {
+                                                    Text("Remove Item")
+                                                }
+                                            }
+                                            .transition(
+                                                .asymmetric(
+                                                    insertion: .offset(y: -44).combined(with: .opacity),
+                                                    removal: .offset(y: -44).combined(with: .opacity)
+                                                )
+                                            )
+                                            .animation(.linear(duration: 0.2), value: expanded)
                                         }
                                     }
-                                } label: {
-                                    Text("Remove Item")
                                 }
                             }
+                        },
+                        label: {
+                            HStack {
+                                Text("Section 1 of All Sections")
+                            }
                         }
-                    }
+                    )
+                    .disclosureGroupStyle(MyDisclosureStyle())
                 }
+                .padding()
             }
         } detail: {
             Text("Homepage")
@@ -81,5 +105,34 @@ struct ContentView: View {
                 Text("Add")
             }
         }
+    }
+}
+
+struct MyDisclosureStyle: DisclosureGroupStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack {
+            Button {
+                withAnimation {
+                    configuration.isExpanded.toggle()
+                }
+            } label: {
+                HStack(alignment: .firstTextBaseline) {
+                    configuration.label
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .transition(.identity)
+                        .rotationEffect(.degrees(configuration.isExpanded ? 0 : -90))
+                        .animation(.linear(duration: 0.2), value: configuration.isExpanded)
+                }
+                .background(Rectangle().fill(.clear))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if configuration.isExpanded {
+                configuration.content
+                    .animation(.linear(duration: 0.2), value: configuration.isExpanded)
+            }
+        }
+        .clipped()
     }
 }
