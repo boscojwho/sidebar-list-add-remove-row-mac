@@ -38,15 +38,24 @@ struct ContentView: View {
     
     @StateObject private var model: Model = .init()
     @State private var expanded: Bool = true
+    @State private var selectedItem: Int?
+    
+    private func buttonStyle(index: Int) -> any ButtonStyle {
+        if let selectedItem, selectedItem == index {
+            return BorderedButtonStyle() as! (any ButtonStyle)
+        } else {
+            return PlainButtonStyle() as! (any ButtonStyle)
+        }
+    }
     
     var body: some View {
         NavigationSplitView {
             ScrollView {
-                Form {
+                LazyVStack(alignment: .leading) {
                     DisclosureGroup(
                         isExpanded: $expanded,
                         content: {
-                            Group {
+                            VStack(alignment: .leading) {
                                 if model.items.isEmpty {
                                     ProgressView()
                                 } else {
@@ -56,7 +65,32 @@ struct ContentView: View {
                                                 Text("Item: \(item.name)")
                                                     .id("detail-\(item.name)")
                                             } label: {
-                                                Text("Item: \(item.name)")
+                                                HStack {
+                                                    Text("Item: \(item.name)")
+                                                        .lineLimit(1, reservesSpace: true)
+                                                }
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                        .fill((selectedItem ?? -1) == index ? Color.secondary : Color.clear)
+                                                        .padding(.all, -4)
+                                                )
+                                                .padding(.all, 2)
+                                                .border(Color.blue, width: 1)
+                                            }
+                                            .simultaneousGesture(
+                                                TapGesture()
+                                                    .onEnded({ _ in
+                                                        selectedItem = index
+                                                    })
+                                            )
+                                            .buttonStyle(.plain)
+                                            .border(Color.blue, width: 1)
+//                                            .contentShape(
+//                                                Rectangle()
+//                                                    .padding(.all, 4)
+//                                            )
+                                            .onTapGesture {
+                                                selectedItem = index
                                             }
                                             .contextMenu {
                                                 Button {
@@ -83,6 +117,8 @@ struct ContentView: View {
                                     }
                                 }
                             }
+                            .padding(.all, 4)
+                            .border(.blue, width: 1)
                         },
                         label: {
                             HStack {
@@ -94,6 +130,7 @@ struct ContentView: View {
                 }
                 .padding()
             }
+            .scrollClipDisabled(true)
         } detail: {
             Text("Homepage")
         }
