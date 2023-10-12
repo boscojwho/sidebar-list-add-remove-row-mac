@@ -71,12 +71,13 @@ struct ContentView: View {
                                                     Text("Remove Item")
                                                 }
                                             }
-                                            .transition(
-                                                .asymmetric(
-                                                    insertion: .offset(y: -44).combined(with: .opacity),
-                                                    removal: .offset(y: -44).combined(with: .opacity)
-                                                )
-                                            )
+                                            /// Add this for a "cheap" accordian effect.
+//                                            .transition(
+//                                                .asymmetric(
+//                                                    insertion: .offset(y: CGFloat(-30 * index)).combined(with: .opacity).animation(.linear(duration: 0.2)),
+//                                                    removal: .offset(y: CGFloat(-30 * index)).combined(with: .opacity).animation(.linear(duration: 0.2))
+//                                                )
+//                                            )
                                             .animation(.linear(duration: 0.2), value: expanded)
                                         }
                                     }
