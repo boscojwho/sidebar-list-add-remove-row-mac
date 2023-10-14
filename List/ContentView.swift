@@ -107,7 +107,7 @@ struct ContentView: View {
                             }
                         }
                     )
-                    .disclosureGroupStyle(MyDisclosureStyle())
+                    .disclosureGroupStyle(VStackDisclosureStyle())
                 }
                 .padding()
             }
@@ -127,31 +127,72 @@ struct ContentView: View {
     }
 }
 
-struct MyDisclosureStyle: DisclosureGroupStyle {
+struct VStackDisclosureStyle: DisclosureGroupStyle {
+    
+    @State private var isHovering = false
+    
     func makeBody(configuration: Configuration) -> some View {
         VStack {
-            Button {
-                withAnimation {
-                    configuration.isExpanded.toggle()
-                }
-            } label: {
-                HStack(alignment: .firstTextBaseline) {
-                    configuration.label
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                        .transition(.identity)
-                        .rotationEffect(.degrees(configuration.isExpanded ? 0 : -90))
-                        .animation(.linear(duration: 0.2), value: configuration.isExpanded)
-                }
-                .background(Rectangle().fill(.clear))
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+            hStackLayout(configuration: configuration)
+            
             if configuration.isExpanded {
                 configuration.content
                     .animation(.linear(duration: 0.2), value: configuration.isExpanded)
             }
         }
         .clipped()
+    }
+    
+    private func hStackLayout(configuration: Configuration) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            configuration.label.foregroundStyle(.tertiary)
+            Spacer()
+            if isHovering == true {
+                Image(systemName: "chevron.down")
+                    .foregroundStyle(.tertiary)
+                    .transition(.identity)
+                    .rotationEffect(.degrees(configuration.isExpanded ? 0 : -90))
+                    .animation(.linear(duration: 0.2), value: configuration.isExpanded)
+                    .buttonStyle(.plain)
+                    .padding(4)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            configuration.isExpanded.toggle()
+                        }
+                    }
+//                    .border(.blue, width: 1)
+            }
+        }
+        .background(Rectangle().fill(.clear))
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovering = hovering
+        }
+    }
+    
+    private func buttonLayout(configuration: Configuration) -> some View {
+        Button {
+            withAnimation {
+                configuration.isExpanded.toggle()
+            }
+        } label: {
+            HStack(alignment: .firstTextBaseline) {
+                configuration.label
+                Spacer()
+                if isHovering == true {
+                    Image(systemName: "chevron.down")
+                        .transition(.identity)
+                        .rotationEffect(.degrees(configuration.isExpanded ? 0 : -90))
+                        .animation(.linear(duration: 0.2), value: configuration.isExpanded)
+                }
+            }
+            .background(Rectangle().fill(.clear))
+            .contentShape(Rectangle())
+            .onHover { hovering in
+                isHovering = hovering
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
