@@ -40,14 +40,6 @@ struct ContentView: View {
     @State private var expanded: Bool = true
     @State private var selectedItem: Int?
     
-    private func buttonStyle(index: Int) -> any ButtonStyle {
-        if let selectedItem, selectedItem == index {
-            return BorderedButtonStyle() as! (any ButtonStyle)
-        } else {
-            return PlainButtonStyle() as! (any ButtonStyle)
-        }
-    }
-    
     var body: some View {
         NavigationSplitView {
             ScrollView {
@@ -85,10 +77,6 @@ struct ContentView: View {
                                             )
                                             .buttonStyle(.plain)
                                             .border(Color.blue, width: 1)
-//                                            .contentShape(
-//                                                Rectangle()
-//                                                    .padding(.all, 4)
-//                                            )
                                             .onTapGesture {
                                                 selectedItem = index
                                             }
@@ -105,13 +93,6 @@ struct ContentView: View {
                                                     Text("Remove Item")
                                                 }
                                             }
-                                            /// Add this for a "cheap" accordian effect.
-//                                            .transition(
-//                                                .asymmetric(
-//                                                    insertion: .offset(y: CGFloat(-30 * index)).combined(with: .opacity).animation(.linear(duration: 0.2)),
-//                                                    removal: .offset(y: CGFloat(-30 * index)).combined(with: .opacity).animation(.linear(duration: 0.2))
-//                                                )
-//                                            )
                                             .animation(.linear(duration: 0.2), value: expanded)
                                         }
                                     }
