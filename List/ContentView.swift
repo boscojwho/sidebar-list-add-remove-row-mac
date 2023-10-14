@@ -40,6 +40,14 @@ struct ContentView: View {
     @State private var expanded: Bool = true
     @State private var selectedItem: Int?
     
+    private var selectedIndex: Int {
+        selectedItem ?? -1
+    }
+    
+    private func style(index: Int) -> AnyShapeStyle {
+        selectedIndex == index ? AnyShapeStyle(.white) : AnyShapeStyle(.primary)
+    }
+    
     var body: some View {
         NavigationSplitView {
             ScrollView {
@@ -60,14 +68,16 @@ struct ContentView: View {
                                                 HStack {
                                                     Text("Item: \(item.name)")
                                                         .lineLimit(1, reservesSpace: true)
+                                                        .foregroundStyle(style(index: index))
+                                                    Spacer()
                                                 }
                                                 .background(
                                                     RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                                        .fill((selectedItem ?? -1) == index ? Color.secondary : Color.clear)
+                                                        .fill((selectedItem ?? -1) == index ? Color.accentColor : Color.clear)
                                                         .padding(.all, -4)
                                                 )
-                                                .padding(.all, 2)
-                                                .border(Color.blue, width: 1)
+                                                .padding(.all, 1)
+//                                                .border(Color.blue, width: 1)
                                             }
                                             .simultaneousGesture(
                                                 TapGesture()
@@ -75,8 +85,8 @@ struct ContentView: View {
                                                         selectedItem = index
                                                     })
                                             )
-                                            .buttonStyle(.plain)
-                                            .border(Color.blue, width: 1)
+                                            .buttonStyle(EmptyButtonStyle())
+//                                            .border(Color.blue, width: 1)
                                             .onTapGesture {
                                                 selectedItem = index
                                             }
@@ -99,7 +109,7 @@ struct ContentView: View {
                                 }
                             }
                             .padding(.all, 4)
-                            .border(.blue, width: 1)
+//                            .border(.blue, width: 1)
                         },
                         label: {
                             HStack {
@@ -154,7 +164,7 @@ struct VStackDisclosureStyle: DisclosureGroupStyle {
                     .rotationEffect(.degrees(configuration.isExpanded ? 0 : -90))
                     .animation(.linear(duration: 0.2), value: configuration.isExpanded)
                     .buttonStyle(.plain)
-                    .padding(4)
+                    .padding(2)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         withAnimation {
@@ -166,6 +176,7 @@ struct VStackDisclosureStyle: DisclosureGroupStyle {
         }
         .background(Rectangle().fill(.clear))
         .contentShape(Rectangle())
+        .padding(4)
         .onHover { hovering in
             isHovering = hovering
         }
@@ -194,5 +205,11 @@ struct VStackDisclosureStyle: DisclosureGroupStyle {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct EmptyButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
     }
 }
